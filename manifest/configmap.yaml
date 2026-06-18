@@ -1,0 +1,48 @@
+
+# ─────────────────────────────────────────
+# 3. ConfigMap — Frontend nginx config
+#    /api/* requests ko backend service pe forward karta hai
+# ─────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: fullstack
+data:
+  nginx.conf: |
+    server {
+        listen 80;
+
+        # Static frontend files serve karo
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+
+        # /api/* requests backend-service ko forward karo
+        location /api/ {
+            proxy_pass http://backend-service:5000/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+
+---
+# ─────────────────────────────────────────
+# 4. ConfigMap — Backend env variables
+# ─────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: fullstack
+data:
+  DB_HOST: "mysql-service"
+  DB_PORT: "3306"
+  DB_NAME: "appdb"
+  DB_USER: "appuser"
+
+---
+

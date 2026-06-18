@@ -1,22 +1,76 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
-  namespace: demo
+  name: backend-deployment
+  namespace: fullstack
+  labels:
+    app: backend
+    tier: application
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: backend
+        tier: application
     spec:
+      initContainers:
+        # MySQL ready hone ka wait karo
+        - name: wait-for-mysql
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z mysql-service 3306; do
+                echo "MySQL ka wait kar raha hoon..."
+                sleep 3
+              done
+              echo "MySQL ready hai!"
       containers:
-      - name: backend
-        image: hashicorp/http-echo
-        args:
-          - "-text=Hello From Backend API"
-        ports:
-        - containerPort: 5678
+        - name: backend
+          # ↓ Apni backend image yahan lagao
+          image: pawanjadon/k8s-backend:latest
+          # image: node:18-alpine   # testing ke liye placeholder
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: PORT
+              value: "5000"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+
+---
