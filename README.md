@@ -1,5 +1,11 @@
 # GKE Full Stack Application Deployment Notes
-
+1. Frontend page open hua
+2. Save button click hua
+3. Frontend ne /api endpoint hit kiya
+4. Nginx ne request backend-service ko bheji
+5. Backend ne MySQL me insert kiya
+6. Backend ne response diya
+7. Frontend ne record screen par dikha diya
 ## Project Objective
 
 GKE cluster par 3-tier application deploy ki:
