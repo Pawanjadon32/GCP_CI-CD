@@ -1,3 +1,10 @@
+Ye 3-tier application hai.
+
+Frontend layer Nginx based UI hai.
+Backend layer REST API service hai.
+Database layer MySQL hai.
+
+Currently application me 1 backend microservice hai jo frontend requests process karti hai aur MySQL me data store karti hai.
 # GKE Full Stack Application Deployment Notes
 1. Frontend page open hua
 2. Save button click hua
