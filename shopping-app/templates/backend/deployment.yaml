@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
-  namespace: fullstack
+  namespace: {{ .Values.namespace }}
   labels:
     app: backend
     tier: application
 spec:
-  replicas: 2
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       app: backend
@@ -38,10 +38,9 @@ spec:
       containers:
         - name: backend
           # ↓ Apni backend image yahan lagao
-          image: pawanjadon/k8s-backend:latest
-          # image: node:18-alpine   # testing ke liye placeholder
+          image: {{ .Values.backend.image.repository }}/{{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
           ports:
-            - containerPort: 5000
+            - containerPort: {{ .Values.backend.port }}
           envFrom:
             - configMapRef:
                 name: backend-config
@@ -55,22 +54,22 @@ spec:
               value: "5000"
           resources:
             requests:
-              memory: "128Mi"
-              cpu: "100m"
+              memory: "{{ .Values.backend.resources.requests.memory }}"
+              cpu: "{{ .Values.backend.resources.requests.cpu }}"
             limits:
-              memory: "256Mi"
-              cpu: "300m"
+              memory: "{{ .Values.backend.resources.limits.memory }}"
+              cpu: "{{ .Values.backend.resources.limits.cpu }}"
           readinessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 5
+              path: {{ .Values.backend.probes.readinessProbe.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.readinessProbe.periodSeconds }}
           livenessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 20
-            periodSeconds: 15
+              path: {{ .Values.backend.probes.livenessProbe.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.backend.probes.livenessProbe.periodSeconds }}
 
 ---

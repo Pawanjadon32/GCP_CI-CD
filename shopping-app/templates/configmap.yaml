@@ -7,7 +7,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: frontend-config
-  namespace: fullstack
+  namespace: {{ .Values.namespace }}
 data:
   nginx.conf: |
     server {
@@ -22,7 +22,7 @@ data:
 
         # /api/* requests backend-service ko forward karo
         location /api/ {
-            proxy_pass http://backend-service:5000/;
+            proxy_pass http://backend-service:{{ .Values.backend.port }}/;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -37,12 +37,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backend-config
-  namespace: fullstack
+  namespace: {{ .Values.namespace }}
 data:
-  DB_HOST: "mysql-service"
-  DB_PORT: "3306"
-  DB_NAME: "appdb"
-  DB_USER: "appuser"
+  DB_HOST: "{{ .Values.backend.config.DB_HOST }}"
+  DB_PORT: "{{ .Values.backend.config.DB_PORT }}"
+  DB_NAME: "{{ .Values.backend.config.DB_NAME }}"
+  DB_USER: "{{ .Values.backend.config.DB_USER }}"
 
 ---
 

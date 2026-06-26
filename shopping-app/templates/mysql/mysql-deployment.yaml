@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-deployment
-  namespace: fullstack
+  namespace: {{ .Values.namespace }}
   labels:
     app: mysql
     tier: database
@@ -21,9 +21,9 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0
+          image: {{ .Values.mysql.image }}:{{ .Values.mysql.tag }}
           ports:
-            - containerPort: 3306
+            - containerPort: {{ .Values.mysql.port }}
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -50,21 +50,21 @@ spec:
               mountPath: /var/lib/mysql
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: "{{ .Values.mysql.resources.requests.memory }}"
+              cpu: "{{ .Values.mysql.resources.requests.cpu }}"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "{{ .Values.mysql.resources.limits.memory }}"
+              cpu: "{{ .Values.mysql.resources.limits.cpu }}"
           readinessProbe:
             exec:
               command: ["mysqladmin", "ping", "-h", "localhost"]
-            initialDelaySeconds: 20
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.mysql.probes.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mysql.probes.readinessProbe.periodSeconds }}
           livenessProbe:
             exec:
               command: ["mysqladmin", "ping", "-h", "localhost"]
-            initialDelaySeconds: 30
-            periodSeconds: 20
+            initialDelaySeconds: {{ .Values.mysql.probes.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.mysql.probes.livenessProbe.periodSeconds }}
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
