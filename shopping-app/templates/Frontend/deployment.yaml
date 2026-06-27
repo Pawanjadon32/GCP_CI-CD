@@ -50,4 +50,5 @@ spec:
           configMap:
             name: frontend-config
 
+
 ---
