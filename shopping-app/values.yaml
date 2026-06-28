@@ -8,7 +8,7 @@ namespace: fullstack
 # BACKEND Configuration
 # ================================================
 backend:
-  replicaCount: 2
+  replicaCount: 3
   image:
     repository: pawanjadon
     name: k8s-backend
